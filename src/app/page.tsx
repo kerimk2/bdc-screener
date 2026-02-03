@@ -1,7 +1,12 @@
 import { supabase } from '@/lib/supabase';
 import { BDCTable } from '@/components/bdc-table';
+import { RefreshButton } from '@/components/refresh-button';
 import { BDCSectorExposure } from '@/types';
 import { classifySector, SECTORS, Sector } from '@/lib/sector-classifier';
+
+// Disable caching to always fetch fresh data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 async function getBDCData(): Promise<BDCSectorExposure[]> {
   // Get all BDCs with financial metrics
@@ -84,13 +89,17 @@ export default async function Home() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            BDC Portfolio Screener
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Compare Business Development Companies by sector exposure. Click any
-            column header to sort.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                BDC Portfolio Screener
+              </h1>
+              <p className="text-gray-600 mt-2">
+                Compare Business Development Companies by sector exposure and financial metrics.
+              </p>
+            </div>
+            <RefreshButton />
+          </div>
         </div>
 
         {/* Data status */}
