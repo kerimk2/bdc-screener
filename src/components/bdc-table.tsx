@@ -13,8 +13,11 @@ interface BDCTableProps {
 type SortKey =
   | 'name'
   | 'total_fair_value'
+  | 'price'
+  | 'market_cap'
   | 'dividend_yield'
   | 'dividend_growth_3yr'
+  | 'payout_ratio'
   | 'price_to_nav'
   | 'non_accrual_pct'
   | 'debt_to_equity'
@@ -46,24 +49,12 @@ export function BDCTable({ data }: BDCTableProps) {
       } else if (sortKey === 'total_fair_value') {
         aVal = a.total_fair_value;
         bVal = b.total_fair_value;
-      } else if (sortKey === 'dividend_yield') {
-        aVal = a.dividend_yield || 0;
-        bVal = b.dividend_yield || 0;
-      } else if (sortKey === 'dividend_growth_3yr') {
-        aVal = a.dividend_growth_3yr || 0;
-        bVal = b.dividend_growth_3yr || 0;
-      } else if (sortKey === 'price_to_nav') {
-        aVal = a.price_to_nav || 0;
-        bVal = b.price_to_nav || 0;
-      } else if (sortKey === 'non_accrual_pct') {
-        aVal = a.non_accrual_pct || 0;
-        bVal = b.non_accrual_pct || 0;
-      } else if (sortKey === 'debt_to_equity') {
-        aVal = a.debt_to_equity || 0;
-        bVal = b.debt_to_equity || 0;
+      } else if (SECTORS.includes(sortKey as Sector)) {
+        aVal = a.sector_exposures[sortKey as Sector] || 0;
+        bVal = b.sector_exposures[sortKey as Sector] || 0;
       } else {
-        aVal = a.sector_exposures[sortKey] || 0;
-        bVal = b.sector_exposures[sortKey] || 0;
+        aVal = (a[sortKey as keyof BDCSectorExposure] as number) || 0;
+        bVal = (b[sortKey as keyof BDCSectorExposure] as number) || 0;
       }
 
       if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
@@ -181,16 +172,25 @@ export function BDCTable({ data }: BDCTableProps) {
                 BDC
                 <SortIcon column="name" />
               </th>
-              <th
-                className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('total_fair_value')}
-              >
-                AUM
-                <SortIcon column="total_fair_value" />
-              </th>
 
               {viewMode === 'metrics' ? (
                 <>
+                  <th
+                    className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                    onClick={() => handleSort('price')}
+                    title="Current stock price"
+                  >
+                    Price
+                    <SortIcon column="price" />
+                  </th>
+                  <th
+                    className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                    onClick={() => handleSort('market_cap')}
+                    title="Market capitalization"
+                  >
+                    Mkt Cap
+                    <SortIcon column="market_cap" />
+                  </th>
                   <th
                     className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
                     onClick={() => handleSort('dividend_yield')}
@@ -201,11 +201,11 @@ export function BDCTable({ data }: BDCTableProps) {
                   </th>
                   <th
                     className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
-                    onClick={() => handleSort('dividend_growth_3yr')}
-                    title="3-year compound annual dividend growth rate"
+                    onClick={() => handleSort('payout_ratio')}
+                    title="Dividend payout ratio - above 100% may be unsustainable"
                   >
-                    3Y Div Growth
-                    <SortIcon column="dividend_growth_3yr" />
+                    Payout
+                    <SortIcon column="payout_ratio" />
                   </th>
                   <th
                     className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
@@ -231,23 +231,38 @@ export function BDCTable({ data }: BDCTableProps) {
                     D/E
                     <SortIcon column="debt_to_equity" />
                   </th>
+                  <th
+                    className="text-right p-3 font-medium whitespace-nowrap"
+                    title="52-week price range (low - high)"
+                  >
+                    52W Range
+                  </th>
                 </>
               ) : (
-                displaySectors.map((sector) => (
+                <>
                   <th
-                    key={sector}
-                    className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
-                    onClick={() => handleSort(sector)}
-                    style={{ minWidth: '100px' }}
+                    className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort('total_fair_value')}
                   >
-                    <span
-                      className="inline-block w-2 h-2 rounded-full mr-1"
-                      style={{ backgroundColor: getSectorColor(sector) }}
-                    />
-                    {sector.replace(' & Technology', '').replace(' Services', '')}
-                    <SortIcon column={sector} />
+                    AUM
+                    <SortIcon column="total_fair_value" />
                   </th>
-                ))
+                  {displaySectors.map((sector) => (
+                    <th
+                      key={sector}
+                      className="text-right p-3 font-medium cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                      onClick={() => handleSort(sector)}
+                      style={{ minWidth: '100px' }}
+                    >
+                      <span
+                        className="inline-block w-2 h-2 rounded-full mr-1"
+                        style={{ backgroundColor: getSectorColor(sector) }}
+                      />
+                      {sector.replace(' & Technology', '').replace(' Services', '')}
+                      <SortIcon column={sector} />
+                    </th>
+                  ))}
+                </>
               )}
             </tr>
           </thead>
@@ -270,12 +285,15 @@ export function BDCTable({ data }: BDCTableProps) {
                     </span>
                   )}
                 </td>
-                <td className="p-3 text-right font-mono">
-                  {formatCurrency(bdc.total_fair_value)}
-                </td>
 
                 {viewMode === 'metrics' ? (
                   <>
+                    <td className="p-3 text-right font-mono">
+                      {formatPrice(bdc.price)}
+                    </td>
+                    <td className="p-3 text-right font-mono">
+                      {bdc.market_cap ? formatCurrency(bdc.market_cap) : '-'}
+                    </td>
                     <td className="p-3 text-right font-mono">
                       <span
                         className={
@@ -292,16 +310,18 @@ export function BDCTable({ data }: BDCTableProps) {
                     <td className="p-3 text-right font-mono">
                       <span
                         className={
-                          (bdc.dividend_growth_3yr || 0) > 5
-                            ? 'text-green-600 font-semibold'
-                            : (bdc.dividend_growth_3yr || 0) > 0
-                            ? 'text-gray-900'
-                            : (bdc.dividend_growth_3yr || 0) < -3
-                            ? 'text-red-600'
+                          (bdc.payout_ratio || 0) > 1.0
+                            ? 'text-red-600 font-semibold'
+                            : (bdc.payout_ratio || 0) > 0.9
+                            ? 'text-orange-600'
+                            : (bdc.payout_ratio || 0) > 0
+                            ? 'text-green-600'
                             : 'text-gray-500'
                         }
                       >
-                        {formatPercent(bdc.dividend_growth_3yr)}
+                        {bdc.payout_ratio != null
+                          ? `${(bdc.payout_ratio * 100).toFixed(0)}%`
+                          : '-'}
                       </span>
                     </td>
                     <td className="p-3 text-right font-mono">
@@ -345,23 +365,33 @@ export function BDCTable({ data }: BDCTableProps) {
                         {formatRatio(bdc.debt_to_equity)}
                       </span>
                     </td>
+                    <td className="p-3 text-right font-mono text-xs whitespace-nowrap">
+                      {bdc.fifty_two_week_low != null && bdc.fifty_two_week_high != null
+                        ? `${formatPrice(bdc.fifty_two_week_low)} - ${formatPrice(bdc.fifty_two_week_high)}`
+                        : '-'}
+                    </td>
                   </>
                 ) : (
-                  displaySectors.map((sector) => (
-                    <td key={sector} className="p-3 text-right font-mono">
-                      <span
-                        className={
-                          bdc.sector_exposures[sector] > 20
-                            ? 'font-semibold'
-                            : bdc.sector_exposures[sector] > 10
-                            ? 'text-gray-900'
-                            : 'text-gray-400'
-                        }
-                      >
-                        {formatPercent(bdc.sector_exposures[sector] || 0)}
-                      </span>
+                  <>
+                    <td className="p-3 text-right font-mono">
+                      {formatCurrency(bdc.total_fair_value)}
                     </td>
-                  ))
+                    {displaySectors.map((sector) => (
+                      <td key={sector} className="p-3 text-right font-mono">
+                        <span
+                          className={
+                            bdc.sector_exposures[sector] > 20
+                              ? 'font-semibold'
+                              : bdc.sector_exposures[sector] > 10
+                              ? 'text-gray-900'
+                              : 'text-gray-400'
+                          }
+                        >
+                          {formatPercent(bdc.sector_exposures[sector] || 0)}
+                        </span>
+                      </td>
+                    ))}
+                  </>
                 )}
               </tr>
             ))}
@@ -379,7 +409,7 @@ export function BDCTable({ data }: BDCTableProps) {
       {viewMode === 'metrics' && (
         <div className="mt-4 text-xs text-gray-500 space-y-1">
           <p><strong>Div Yield:</strong> Annual dividend yield. <span className="text-green-600">Green</span> = 12%+</p>
-          <p><strong>3Y Div Growth:</strong> 3-year compound annual dividend growth rate. <span className="text-green-600">Green</span> = 5%+, <span className="text-red-600">Red</span> = negative</p>
+          <p><strong>Payout:</strong> Dividend payout ratio. <span className="text-green-600">Green</span> = &lt;90% (sustainable), <span className="text-orange-600">Orange</span> = 90-100%, <span className="text-red-600">Red</span> = &gt;100% (may be unsustainable)</p>
           <p><strong>P/NAV:</strong> Price to Net Asset Value. <span className="text-green-600">Green</span> = &lt;0.9 (discount), <span className="text-orange-600">Orange</span> = &gt;1.2 (premium)</p>
           <p><strong>Non-Accrual:</strong> Non-performing loans as % of portfolio. <span className="text-green-600">Green</span> = &lt;1.5%, <span className="text-red-600">Red</span> = &gt;5%</p>
           <p><strong>D/E:</strong> Debt to Equity ratio. <span className="text-green-600">Green</span> = &lt;0.8, <span className="text-orange-600">Orange</span> = &gt;1.2</p>

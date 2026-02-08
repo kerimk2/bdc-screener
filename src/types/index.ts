@@ -13,6 +13,16 @@ export interface BDC {
   total_assets: number | null;
   debt_to_equity: number | null;
   net_investment_income_yield: number | null;
+  market_cap: number | null;
+  payout_ratio: number | null;
+  beta: number | null;
+  fifty_two_week_high: number | null;
+  fifty_two_week_low: number | null;
+  analyst_target_price: number | null;
+  analyst_rating: string | null;
+  institutional_ownership: number | null;
+  five_yr_avg_dividend_yield: number | null;
+  ex_dividend_date: string | null;
 }
 
 export interface Holding {
@@ -41,6 +51,16 @@ export interface BDCSectorExposure {
   non_accrual_pct: number | null;
   debt_to_equity: number | null;
   net_investment_income_yield: number | null;
+  market_cap: number | null;
+  payout_ratio: number | null;
+  beta: number | null;
+  fifty_two_week_high: number | null;
+  fifty_two_week_low: number | null;
+  analyst_target_price: number | null;
+  analyst_rating: string | null;
+  institutional_ownership: number | null;
+  five_yr_avg_dividend_yield: number | null;
+  ex_dividend_date: string | null;
 }
 
 export interface SectorSummary {
