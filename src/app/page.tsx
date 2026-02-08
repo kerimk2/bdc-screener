@@ -37,33 +37,42 @@ async function getBDCData(): Promise<{ data: BDCSectorExposure[]; lastUpdated: s
       .eq('bdc_cik', bdc.cik)
       .order('period_date', { ascending: false });
 
-    if (holdingsError || !holdings || holdings.length === 0) {
-      continue;
-    }
-
-    // Get the latest period date
-    const latestPeriod = holdings[0].period_date;
-    const latestHoldings = holdings.filter((h) => h.period_date === latestPeriod);
-
-    // Calculate total fair value
-    const totalFairValue = latestHoldings.reduce(
-      (sum, h) => sum + (h.fair_value || 0),
-      0
-    );
-
-    if (totalFairValue === 0) continue;
-
-    // Calculate sector exposures
-    const sectorTotals: Record<string, number> = {};
-    for (const holding of latestHoldings) {
-      const sector = holding.industry_sector || classifySector(holding.industry_raw);
-      sectorTotals[sector] = (sectorTotals[sector] || 0) + (holding.fair_value || 0);
-    }
-
-    // Convert to percentages
+    let totalFairValue = 0;
+    let latestPeriod = '';
     const sectorExposures: Record<Sector, number> = {} as Record<Sector, number>;
+
+    if (!holdingsError && holdings && holdings.length > 0) {
+      // Get the latest period date
+      latestPeriod = holdings[0].period_date;
+      const latestHoldings = holdings.filter((h) => h.period_date === latestPeriod);
+
+      // Calculate total fair value
+      totalFairValue = latestHoldings.reduce(
+        (sum, h) => sum + (h.fair_value || 0),
+        0
+      );
+
+      // Calculate sector exposures
+      if (totalFairValue > 0) {
+        const sectorTotals: Record<string, number> = {};
+        for (const holding of latestHoldings) {
+          const sector = holding.industry_sector || classifySector(holding.industry_raw);
+          sectorTotals[sector] = (sectorTotals[sector] || 0) + (holding.fair_value || 0);
+        }
+        for (const sector of SECTORS) {
+          sectorExposures[sector] = ((sectorTotals[sector] || 0) / totalFairValue) * 100;
+        }
+      }
+    }
+
+    // Initialize any missing sectors to 0
     for (const sector of SECTORS) {
-      sectorExposures[sector] = ((sectorTotals[sector] || 0) / totalFairValue) * 100;
+      if (sectorExposures[sector] == null) sectorExposures[sector] = 0;
+    }
+
+    // Skip BDCs with no holdings AND no financial data (truly empty records)
+    if (totalFairValue === 0 && bdc.price == null && bdc.dividend_yield == null) {
+      continue;
     }
 
     results.push({
