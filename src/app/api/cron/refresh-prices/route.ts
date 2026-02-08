@@ -41,6 +41,16 @@ export async function GET() {
       if (yahooData.dividend_yield != null) updateFields.dividend_yield = yahooData.dividend_yield;
       if (yahooData.nav_per_share != null) updateFields.nav_per_share = yahooData.nav_per_share;
       if (yahooData.debt_to_equity != null) updateFields.debt_to_equity = yahooData.debt_to_equity;
+      if (yahooData.market_cap != null) updateFields.market_cap = yahooData.market_cap;
+      if (yahooData.payout_ratio != null) updateFields.payout_ratio = yahooData.payout_ratio;
+      if (yahooData.beta != null) updateFields.beta = yahooData.beta;
+      if (yahooData.fifty_two_week_high != null) updateFields.fifty_two_week_high = yahooData.fifty_two_week_high;
+      if (yahooData.fifty_two_week_low != null) updateFields.fifty_two_week_low = yahooData.fifty_two_week_low;
+      if (yahooData.analyst_target_price != null) updateFields.analyst_target_price = yahooData.analyst_target_price;
+      if (yahooData.analyst_rating != null) updateFields.analyst_rating = yahooData.analyst_rating;
+      if (yahooData.institutional_ownership != null) updateFields.institutional_ownership = yahooData.institutional_ownership;
+      if (yahooData.five_yr_avg_dividend_yield != null) updateFields.five_yr_avg_dividend_yield = yahooData.five_yr_avg_dividend_yield;
+      if (yahooData.ex_dividend_date != null) updateFields.ex_dividend_date = yahooData.ex_dividend_date;
 
       // Calculate price_to_nav from fresh data
       const finalPrice = yahooData.price;

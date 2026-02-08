@@ -82,6 +82,16 @@ async function getBDCData(): Promise<{ data: BDCSectorExposure[]; lastUpdated: s
       non_accrual_pct: bdc.non_accrual_pct,
       debt_to_equity: bdc.debt_to_equity,
       net_investment_income_yield: bdc.net_investment_income_yield,
+      market_cap: bdc.market_cap,
+      payout_ratio: bdc.payout_ratio,
+      beta: bdc.beta,
+      fifty_two_week_high: bdc.fifty_two_week_high,
+      fifty_two_week_low: bdc.fifty_two_week_low,
+      analyst_target_price: bdc.analyst_target_price,
+      analyst_rating: bdc.analyst_rating,
+      institutional_ownership: bdc.institutional_ownership,
+      five_yr_avg_dividend_yield: bdc.five_yr_avg_dividend_yield,
+      ex_dividend_date: bdc.ex_dividend_date,
     });
   }
 
