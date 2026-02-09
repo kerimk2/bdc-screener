@@ -2,8 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { BDCTable } from '@/components/bdc-table';
 import { BDCSectorExposure } from '@/types';
 import { classifySector, SECTORS, Sector } from '@/lib/sector-classifier';
-import Link from 'next/link';
-import { Eye } from 'lucide-react';
+
 
 export const revalidate = 3600; // Revalidate at most once per hour
 
@@ -114,23 +113,14 @@ export default async function Home() {
     <main className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              BDC Portfolio Screener
-            </h1>
-            <p className="text-gray-600 mt-2">
-              Compare Business Development Companies by sector exposure. Click any
-              column header to sort.
-            </p>
-          </div>
-          <Link
-            href="/watchlist"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 text-sm shrink-0"
-          >
-            <Eye className="w-4 h-4" />
-            Stock Watchlist
-          </Link>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            BDC Portfolio Screener
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Compare Business Development Companies by sector exposure. Click any
+            column header to sort.
+          </p>
         </div>
 
         {/* Data status */}

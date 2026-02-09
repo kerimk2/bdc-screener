@@ -102,7 +102,7 @@ export default async function BDCDetailPage({ params }: Props) {
           className="inline-flex items-center text-blue-600 hover:underline mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to All BDCs
+          Back to Screener
         </Link>
 
         {/* Header */}
