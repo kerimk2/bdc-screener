@@ -2,18 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Eye } from 'lucide-react';
+import { BarChart3, Eye, PieChart } from 'lucide-react';
 
 const tabs = [
   { label: 'BDC Screener', href: '/', icon: BarChart3 },
   { label: 'Watchlist', href: '/watchlist', icon: Eye },
+  { label: 'Portfolio', href: '/portfolio', icon: PieChart },
 ];
 
 export function TabNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white border-b">
+    <nav className="bg-white border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center h-14 gap-8">
           <span className="text-lg font-bold text-gray-900 shrink-0">
