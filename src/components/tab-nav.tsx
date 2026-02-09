@@ -5,9 +5,9 @@ import { usePathname } from 'next/navigation';
 import { BarChart3, Eye, PieChart } from 'lucide-react';
 
 const tabs = [
+  { label: 'Portfolio', href: '/portfolio', icon: PieChart },
   { label: 'BDC Screener', href: '/', icon: BarChart3 },
   { label: 'Watchlist', href: '/watchlist', icon: Eye },
-  { label: 'Portfolio', href: '/portfolio', icon: PieChart },
 ];
 
 export function TabNav() {
